@@ -18,18 +18,18 @@ class Issue(object):
 class DMD1(Issue):
     """Class for flake8 issue(when model doesn't have docs at all)."""
     code = 'DMD1'
-    description = 'Class `{model_name}` must have docs'
+    description = 'Model `{model_name}` must have docs'
 
 
 class DMD2(Issue):
     """Class for flake8 issue(when model doesn't have docs for field)."""
     code = 'DMD2'
-    description = 'Class `{model_name}` must have docs for `{field}`'
+    description = 'Model `{model_name}` must have docs for `{field}`'
 
 
 class DMD3(Issue):
     """Class for flake8 issue(when model property doesn't have docs)."""
     code = 'DMD3'
     description = (
-        'Class `{model_name}` must have docs for property `{property}`'
+        'Model `{model_name}` must have docs for property `{property}`'
     )

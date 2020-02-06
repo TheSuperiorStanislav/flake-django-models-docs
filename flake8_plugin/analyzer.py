@@ -1,8 +1,8 @@
 import re
 import typing
-from ast import AST, Assign, Call, ClassDef, Expr, NodeVisitor, FunctionDef
+from ast import AST, Assign, Call, ClassDef, Expr, FunctionDef, NodeVisitor
 
-from .issue import DMD1, DMD2, Issue, DMD3
+from .issue import DMD1, DMD2, DMD3, Issue
 
 
 class DjangoModelAnalyzer(NodeVisitor):
@@ -27,44 +27,54 @@ class DjangoModelAnalyzer(NodeVisitor):
 
     def check_main_docs(self, node: ClassDef):
         """Check the main docs of model class."""
-        common_issue_args = {
-            'lineno': node.lineno,
-            'col': node.col_offset,
-            'model_name': node.name,
-        }
+        fields = self.extract_fields_from_model(node)
+
+        # If class doesn't have any fields we assume that is not a Model class
+        if not fields:
+            return
+
         if not self.check_docs_existence(node):
-            self.issues.append(DMD1(**common_issue_args))
+            self.issues.append(DMD1(
+                lineno=node.lineno,
+                col=node.col_offset,
+                model_name=node.name,
+            ))
             return
 
         fields = self.extract_fields_from_model(node)
         docs = self.extract_docstring_from_model(node)
 
-        for field_name in fields:
+        for field in fields:
+            field_name = field.targets[0].id
             if not self.is_main_docs_is_ok(field_name=field_name, docs=docs):
-                self.issues.append(DMD2(field=field_name, **common_issue_args))
+                self.issues.append(DMD2(
+                    lineno=field.lineno,
+                    col=field.col_offset,
+                    model_name=node.name,
+                    field=field_name,
+                ))
 
     def check_properties_docs(self, node: ClassDef):
         """Checks docs existences for properties."""
-        common_issue_args = {
-            'lineno': node.lineno,
-            'col': node.col_offset,
-            'model_name': node.name,
-        }
         properties = self.extract_properties_from_model(node)
         for property_def in properties:
-            print(property_def.name)
             if not self.check_docs_existence(property_def):
                 self.issues.append(
-                    DMD3(property=property_def.name, **common_issue_args)
+                    DMD3(
+                        lineno=property_def.lineno,
+                        col=node.col_offset,
+                        model_name=node.name,
+                        property=property_def.name
+                    )
                 )
 
     def extract_fields_from_model(self, node: ClassDef):
         """Extract from class body all fields."""
-        fields = (
-            body_part.targets[0].id
+        fields = [
+            body_part
             for body_part in node.body
             if self.is_model_field_assigment(body_part)
-        )
+        ]
         return fields
 
     def extract_properties_from_model(self, node: ClassDef):
@@ -92,8 +102,8 @@ class DjangoModelAnalyzer(NodeVisitor):
         if not is_field_assigment:
             return False
         return (
-                'Field' in self.get_field_type(body_part) or
-                'Key' in self.get_field_type(body_part)
+            'Field' in self.get_field_type(body_part) or
+            'Key' in self.get_field_type(body_part)
         )
 
     def is_main_docs_is_ok(self, field_name: str, docs: str) -> bool:
@@ -111,7 +121,6 @@ class DjangoModelAnalyzer(NodeVisitor):
             decorator.id
             for decorator in body_part.decorator_list
         )
-        print(decorators)
         return 'property' in decorators
 
     @staticmethod

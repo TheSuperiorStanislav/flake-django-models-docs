@@ -14,8 +14,10 @@ class DjangoModelDocString:
             Regex rule for matching possible location of models classes
 
     """
-    model_filepath_pattern: str = r'apps/[a-z_]+/(models.py|models/[a-z_]*.py)'
-    name: str = 'flake8-django-models-docstrings'
+    model_filepath_pattern: str = (
+        r'(apps/)?[a-z_]+/(models.py|models/[a-z_]*.py)'
+    )
+    name: str = 'flake8-django-docstrings'
     version: str = '0.0.1'
 
     def __init__(self, tree, filename):
