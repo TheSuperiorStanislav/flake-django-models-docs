@@ -14,6 +14,14 @@ class Issue(object):
         message = self.description.format(**self.extra_data)
         return '{code} {message}'.format(code=self.code, message=message)
 
+    def __repr__(self):
+        return (
+            f"code={self.code}, "
+            f"col={self.col}, lineno={self.lineno}, "
+            f"model_name='{self.extra_data['model_name']}', "
+            f"message={self.message}"
+        )
+
 
 class DMD1(Issue):
     """Class for flake8 issue(when model doesn't have docs at all)."""

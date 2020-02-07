@@ -1,10 +1,22 @@
+import sys
 from ast import parse
 from collections import namedtuple
 
 import pytest
+from packaging import version
 
-from flake8_plugin import issue
+from flake8_plugin import DjangoModelDocString, issue
 from flake8_plugin.analyzer import DjangoModelAnalyzer
+
+IssueResults = namedtuple(
+    'IssueResults', ('col', 'lineno', 'model_name')
+)
+BASE_PATH = 'tests/fixtures/'
+CURRENT_VERSION = version.parse(
+    f'{sys.version_info.major}.'
+    f'{sys.version_info.minor}.'
+    f'{sys.version_info.micro}'
+)
 
 
 def create_file_tree(filename: str):
@@ -13,88 +25,72 @@ def create_file_tree(filename: str):
     return tree
 
 
-IssueResults = namedtuple(
-    'IssueResults', ('col', 'lineno', 'model_name')
-)
+def test_issue_discovery():
+    """Check that analyzer finds issues in correct spots."""
+    filename = f'{BASE_PATH}app_with_models_module/models.py'
+    analyzer = DjangoModelAnalyzer()
+    analyzer.visit(create_file_tree(filename))
+    issues_types = (
+        (
+            issue.DMD1,
+            IssueResults(col=0, lineno=9, model_name='ModelWithDMD1')
+        ),
+        (
+            issue.DMD2,
+            IssueResults(col=4, lineno=21, model_name='ModelWithDMD2')
+        ),
+        (
+            issue.DMD3,
+            IssueResults(col=0, lineno=36, model_name='ModelWithDMD3')
+        )
+    )
+    for issue_type, issue_data in issues_types:
+        issues = tuple(
+            filter(lambda x: isinstance(x, issue_type), analyzer.issues)
+        )
+        assert issues
+        assert len(issues) == 1
+        found_issue = issues[0]
 
-test_params = (
+        assert found_issue.col == issue_data.col
+        if issue_type == issue.DMD3:
+            print(sys.version)
+            if CURRENT_VERSION >= version.parse('3.8.0'):
+                assert found_issue.lineno == issue_data.lineno
+            else:
+                assert found_issue.lineno == issue_data.lineno - 1
+        else:
+            assert found_issue.lineno == issue_data.lineno
+        assert found_issue.extra_data['model_name'] == issue_data.model_name
+
+
+test_files_paths = (
     (
-        'tests/app_with_models_module/models.py',
-        issue.DMD1,
-        IssueResults(col=0, lineno=9, model_name='ModelWithDMD1')
+        f'{BASE_PATH}app_with_models_module/models.py', 3
     ),
     (
-        'tests/app_with_models_package/models/foo.py',
-        issue.DMD1,
-        IssueResults(col=0, lineno=9, model_name='ModelWithDMD1')
+        f'{BASE_PATH}app_with_models_package/models/foo.py', 3
     ),
     (
-        'tests/apps/app_with_models_module/models.py',
-        issue.DMD1,
-        IssueResults(col=0, lineno=9, model_name='ModelWithDMD1')
+        f'{BASE_PATH}apps/app_with_models_module/models.py', 3
     ),
     (
-        'tests/apps/app_with_models_package/models/foo.py',
-        issue.DMD1,
-        IssueResults(col=0, lineno=9, model_name='ModelWithDMD1')
+        f'{BASE_PATH}apps/app_with_models_package/models/correct_file.py', 0
     ),
     (
-        'tests/app_with_models_module/models.py',
-        issue.DMD2,
-        IssueResults(col=4, lineno=21, model_name='ModelWithDMD2')
-    ),
-    (
-        'tests/app_with_models_package/models/foo.py',
-        issue.DMD2,
-        IssueResults(col=4, lineno=21, model_name='ModelWithDMD2')
-    ),
-    (
-        'tests/apps/app_with_models_module/models.py',
-        issue.DMD2,
-        IssueResults(col=4, lineno=21, model_name='ModelWithDMD2')
-    ),
-    (
-        'tests/apps/app_with_models_package/models/foo.py',
-        issue.DMD2,
-        IssueResults(col=4, lineno=21, model_name='ModelWithDMD2')
-    ),
-    (
-        'tests/app_with_models_module/models.py',
-        issue.DMD3,
-        IssueResults(col=0, lineno=36, model_name='ModelWithDMD3')
-    ),
-    (
-        'tests/app_with_models_package/models/foo.py',
-        issue.DMD3,
-        IssueResults(col=0, lineno=36, model_name='ModelWithDMD3')
-    ),
-    (
-        'tests/apps/app_with_models_module/models.py',
-        issue.DMD3,
-        IssueResults(col=0, lineno=36, model_name='ModelWithDMD3')
-    ),
-    (
-        'tests/apps/app_with_models_package/models/foo.py',
-        issue.DMD3,
-        IssueResults(col=0, lineno=36, model_name='ModelWithDMD3')
+        f'{BASE_PATH}app_with_models_package/models/correct_file.py', 0
     ),
 )
 
 
 @pytest.mark.parametrize(
-    'filename, issue_type, issue_data',
-    test_params
+    'filename, issue_count, ',
+    test_files_paths
 )
-def test_issue_discovery(filename: str, issue_type, issue_data: IssueResults):
-    analyzer = DjangoModelAnalyzer()
-    analyzer.visit(create_file_tree(filename))
-    issues = tuple(
-        filter(lambda x: isinstance(x, issue_type), analyzer.issues)
+def test_file_checking(filename: str, issue_count: int):
+    """Check that plugin correctly identifies files and returns errors."""
+    plugin = DjangoModelDocString(
+        tree=create_file_tree(filename), filename=filename
     )
-    assert issues
-    assert len(issues) == 1
-    found_issue = issues[0]
-
-    assert found_issue.col == issue_data.col
-    assert found_issue.lineno == issue_data.lineno
-    assert found_issue.extra_data['model_name'] == issue_data.model_name
+    issues = tuple(plugin.run())
+    assert len(issues) == issue_count

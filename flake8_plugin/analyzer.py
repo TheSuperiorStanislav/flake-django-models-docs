@@ -140,11 +140,14 @@ class DjangoModelAnalyzer(NodeVisitor):
     @staticmethod
     def extract_docstring_from_model(node: ClassDef) -> str:
         """Extract docstring form model class."""
-        return node.body[0].value.value
+        try:
+            return node.body[0].value.value
+        except AttributeError:
+            return node.body[0].value.s
 
     @staticmethod
     def check_docs_existence(
-            node: typing.Union[ClassDef, FunctionDef]
+        node: typing.Union[ClassDef, FunctionDef]
     ) -> bool:
         """Check is class or function has a docstring."""
         return isinstance(node.body[0], Expr)
