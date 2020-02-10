@@ -1,10 +1,13 @@
 import setuptools
 
+with open('README.md', 'r') as read_me_file:
+    long_description = read_me_file.read()
+
 setuptools.setup(
     name='flake8-django-docstrings',
     version='0.0.1',
-    description='our extension to flake8',
-    long_description='long_description',
+    description='Flake 8 plugin that checks docstrings for Django models',
+    long_description=long_description,
     long_description_content_type='text/markdown',
     author='Saritasa',
     author_email='example@example.com',
@@ -15,9 +18,12 @@ setuptools.setup(
     python_requires='>=3.5',
     install_requires=[
         'flake8',
+        'packaging'
     ],
     tests_require=[
         'pytest',
+        'pytest-flake8',
+        'pytest-isort',
     ],
     entry_points={
         'flake8.extension': [

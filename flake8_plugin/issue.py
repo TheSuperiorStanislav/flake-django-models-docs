@@ -1,20 +1,34 @@
 class Issue(object):
-    """Base class for flake8 issues."""
-    code = None
-    description = None
+    """Base class for flake8 issues.
 
-    def __init__(self, lineno, col, **extra_data):
-        self.extra_data = extra_data
-        self.col = col
-        self.lineno = lineno
+    Attributes:
+        code (str):
+            Identifier of issue for flake8, can be used in config to ignore it
+        message_template (str):
+            Template of message which will be showed to user
+        extra_data (dict):
+            Extra payload which will be used in template rendering
+        lineno (int): Line where issue was found
+        col (int): Column where issue was found
+
+    """
+    code = None
+    message_template = None
+
+    def __init__(self, lineno: int, col: int, **extra_data):
+        """Initialize the issue."""
+        self.extra_data: dict = extra_data
+        self.col: int = col
+        self.lineno: int = lineno
 
     @property
     def message(self):
-        """Return issue message, which will be display to user"""
-        message = self.description.format(**self.extra_data)
+        """Return issue message, which will be displayed to user."""
+        message = self.message_template.format(**self.extra_data)
         return '{code} {message}'.format(code=self.code, message=message)
 
     def __repr__(self):
+        """Representation of issue for debugging purposes."""
         return (
             f"code={self.code}, "
             f"col={self.col}, lineno={self.lineno}, "
@@ -26,18 +40,18 @@ class Issue(object):
 class DMD1(Issue):
     """Class for flake8 issue(when model doesn't have docs at all)."""
     code = 'DMD1'
-    description = 'Model `{model_name}` must have docs'
+    message_template = 'Model `{model_name}` must have docs'
 
 
 class DMD2(Issue):
     """Class for flake8 issue(when model doesn't have docs for field)."""
     code = 'DMD2'
-    description = 'Model `{model_name}` must have docs for `{field}`'
+    message_template = 'Model `{model_name}` must have docs for `{field}`'
 
 
 class DMD3(Issue):
     """Class for flake8 issue(when model property doesn't have docs)."""
     code = 'DMD3'
-    description = (
+    message_template = (
         'Model `{model_name}` must have docs for property `{property}`'
     )

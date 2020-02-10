@@ -1,7 +1,13 @@
 import re
 from ast import Module
+from collections import namedtuple
 
 from flake8_plugin.analyzer import DjangoModelAnalyzer
+from flake8_plugin.issue import Issue
+
+FlakeIssue = namedtuple(
+    'FlakeIssue', ('lineno', 'col', 'message', 'plugin_class')
+)
 
 
 class DjangoModelDocString:
@@ -20,7 +26,7 @@ class DjangoModelDocString:
     name: str = 'flake8-django-docstrings'
     version: str = '0.0.1'
 
-    def __init__(self, tree, filename):
+    def __init__(self, tree, filename: str):
         """Init plugin.
 
         Attributes:
@@ -35,7 +41,7 @@ class DjangoModelDocString:
         """Run plugin against file.
 
         First we check if file is related to django models, if not we skip
-        checking. If file is related to to django models we initiate analyzer
+        checking. If file is related to django models we initiate analyzer to
         run it against tree of file and yield one by one unpacked issues.
 
         """
@@ -46,7 +52,7 @@ class DjangoModelDocString:
         analyzer.visit(self.tree)
 
         for issue in analyzer.issues:
-            yield issue.lineno, issue.col, issue.message, DjangoModelDocString
+            yield self.flake_issue(issue)
 
     def is_model_file(self) -> bool:
         """Check if incoming file is related to django models or not."""
@@ -54,3 +60,11 @@ class DjangoModelDocString:
             pattern=self.model_filepath_pattern,
             string=self.filename
         ))
+
+    def flake_issue(self, issue: Issue) -> FlakeIssue:
+        return FlakeIssue(
+            lineno=issue.lineno,
+            col=issue.col,
+            message=issue.message,
+            plugin_class=self.__class__
+        )

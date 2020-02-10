@@ -41,12 +41,11 @@ class DjangoModelAnalyzer(NodeVisitor):
             ))
             return
 
-        fields = self.extract_fields_from_model(node)
         docs = self.extract_docstring_from_model(node)
 
         for field in fields:
             field_name = field.targets[0].id
-            if not self.is_main_docs_is_ok(field_name=field_name, docs=docs):
+            if not self.is_main_docs_are_ok(field_name=field_name, docs=docs):
                 self.issues.append(DMD2(
                     lineno=field.lineno,
                     col=field.col_offset,
@@ -78,7 +77,7 @@ class DjangoModelAnalyzer(NodeVisitor):
         return fields
 
     def extract_properties_from_model(self, node: ClassDef):
-        """Extract `propertied` from model class."""
+        """Extract `properties` from model class."""
         properties = (
             body_part
             for body_part in node.body
@@ -106,7 +105,7 @@ class DjangoModelAnalyzer(NodeVisitor):
             'Key' in self.get_field_type(body_part)
         )
 
-    def is_main_docs_is_ok(self, field_name: str, docs: str) -> bool:
+    def is_main_docs_are_ok(self, field_name: str, docs: str) -> bool:
         """Check if docstring of model class contains decs for all fields."""
         pattern = self.field_docstring_pattern.format(field=field_name)
         return bool(re.search(pattern=pattern, string=docs))
@@ -125,7 +124,7 @@ class DjangoModelAnalyzer(NodeVisitor):
 
     @staticmethod
     def get_field_type(body_part) -> str:
-        """Get field type form class.
+        """Get field type from body part.
 
         Examples:
             CharField
@@ -140,6 +139,8 @@ class DjangoModelAnalyzer(NodeVisitor):
     @staticmethod
     def extract_docstring_from_model(node: ClassDef) -> str:
         """Extract docstring form model class."""
+
+        # It's different for Python 3.8
         try:
             return node.body[0].value.value
         except AttributeError:

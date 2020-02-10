@@ -3,10 +3,9 @@ from ast import parse
 from collections import namedtuple
 
 import pytest
-from packaging import version
-
 from flake8_plugin import DjangoModelDocString, issue
 from flake8_plugin.analyzer import DjangoModelAnalyzer
+from packaging import version
 
 IssueResults = namedtuple(
     'IssueResults', ('col', 'lineno', 'model_name')
@@ -20,6 +19,7 @@ CURRENT_VERSION = version.parse(
 
 
 def create_file_tree(filename: str):
+    """Create tree of test file"""
     with open(filename, 'r') as source:
         tree = parse(source.read())
     return tree
@@ -53,8 +53,8 @@ def test_issue_discovery():
         found_issue = issues[0]
 
         assert found_issue.col == issue_data.col
+        # Python 3.8 and higher discover properties at one line lower
         if issue_type == issue.DMD3:
-            print(sys.version)
             if CURRENT_VERSION >= version.parse('3.8.0'):
                 assert found_issue.lineno == issue_data.lineno
             else:
