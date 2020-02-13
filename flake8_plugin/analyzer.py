@@ -1,6 +1,15 @@
 import re
 import typing
-from ast import AST, Assign, Call, ClassDef, Expr, FunctionDef, NodeVisitor
+from ast import (
+    AST,
+    Assign,
+    Call,
+    ClassDef,
+    Expr,
+    FunctionDef,
+    Name,
+    NodeVisitor,
+)
 
 from .issue import DMD1, DMD2, DMD3, Issue
 
@@ -14,7 +23,7 @@ class DjangoModelAnalyzer(NodeVisitor):
 
     """
 
-    field_docstring_pattern = r'{field} \([a-z._]*\):( \S|\n\s*\S)'
+    field_docstring_pattern = r'{field} \([a-zA-Z._]*\):( \S|\n\s*\S)'
 
     def __init__(self):
         """Initiate analyzer."""
@@ -116,10 +125,13 @@ class DjangoModelAnalyzer(NodeVisitor):
         if not isinstance(body_part, FunctionDef):
             return False
 
+        # Property will have class ast.Name
         decorators = (
             decorator.id
             for decorator in body_part.decorator_list
+            if isinstance(decorator, Name)
         )
+
         return 'property' in decorators
 
     @staticmethod

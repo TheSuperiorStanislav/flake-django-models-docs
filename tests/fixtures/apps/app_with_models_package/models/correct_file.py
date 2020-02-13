@@ -21,3 +21,7 @@ class CorrectModel:
     def last_name(self):
         """Property docstring."""
         return 'last_name'
+
+    @staticmethod()
+    def trans(self):
+        return 'last_name'
