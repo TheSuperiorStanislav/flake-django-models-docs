@@ -23,7 +23,7 @@ class DjangoModelAnalyzer(NodeVisitor):
 
     """
 
-    field_docstring_pattern = r'{field} \([a-zA-Z._]*\):( \S|\n\s*\S)'
+    field_docstring_pattern = r'{field} ?\([a-zA-Z._\[\]]*\):( \S|\n\s*\S)'
 
     def __init__(self):
         """Initiate analyzer."""

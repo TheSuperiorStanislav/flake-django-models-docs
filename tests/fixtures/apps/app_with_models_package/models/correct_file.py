@@ -2,6 +2,10 @@ class PrimaryKey:
     pass
 
 
+class ForeignKey:
+    pass
+
+
 class CharField:
     pass
 
@@ -10,11 +14,13 @@ class CorrectModel:
     """Model docstring.
 
     id (int): Id is id
-    first_name (str): first_name is first_name
+    user (User): User is user
+    first_name (list[str]): first_name is first_name
 
     """
 
     id = PrimaryKey()
+    user = ForeignKey()
     first_name = CharField()
 
     @property

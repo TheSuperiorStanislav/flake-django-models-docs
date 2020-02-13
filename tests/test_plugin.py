@@ -80,6 +80,9 @@ test_files_paths = (
     (
         f'{BASE_PATH}app_with_models_package/models/correct_file.py', 0
     ),
+    (
+        f'{BASE_PATH}app_with_models_module/forms.py', 0
+    ),
 )
 
 
