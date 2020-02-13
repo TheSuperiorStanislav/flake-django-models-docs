@@ -11,7 +11,7 @@ from ast import (
     NodeVisitor,
 )
 
-from .issue import DMD1, DMD2, DMD3, Issue
+from .issue import DMD1, DMD2, DMD3
 
 
 class DjangoModelAnalyzer(NodeVisitor):
@@ -27,7 +27,7 @@ class DjangoModelAnalyzer(NodeVisitor):
 
     def __init__(self):
         """Initiate analyzer."""
-        self.issues: typing.List[Issue] = []
+        self.issues = []
 
     def visit_ClassDef(self, node: ClassDef):
         """Analyze all classes in file(tree)."""

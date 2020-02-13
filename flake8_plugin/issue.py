@@ -17,9 +17,9 @@ class Issue(object):
 
     def __init__(self, lineno: int, col: int, **extra_data):
         """Initialize the issue."""
-        self.extra_data: dict = extra_data
-        self.col: int = col
-        self.lineno: int = lineno
+        self.extra_data = extra_data
+        self.col = col
+        self.lineno = lineno
 
     @property
     def message(self):
@@ -30,10 +30,16 @@ class Issue(object):
     def __repr__(self):
         """Representation of issue for debugging purposes."""
         return (
-            f"code={self.code}, "
-            f"col={self.col}, lineno={self.lineno}, "
-            f"model_name='{self.extra_data['model_name']}', "
-            f"message={self.message}"
+            "code={code}, "
+            "col={col}, lineno={self.lineno}, "
+            "model_name='{model_name}', "
+            "message={message}"
+        ).format(
+            code=self.code,
+            lineno=self.lineno,
+            col=self.col,
+            model_name=self.extra_data['model_name'],
+            message=self.message
         )
 
 

@@ -1,5 +1,4 @@
 import re
-from ast import Module
 from collections import namedtuple
 
 from flake8_plugin.analyzer import DjangoModelAnalyzer
@@ -20,11 +19,11 @@ class DjangoModelDocString:
             Regex rule for matching possible location of models classes
 
     """
-    model_filepath_pattern: str = (
+    model_filepath_pattern = (
         r'(apps/)?[a-z_]+/(models.py|models/[a-z_]*.py)'
     )
-    name: str = 'flake8-django-docstrings'
-    version: str = '0.0.1'
+    name = 'flake8-django-docstrings'
+    version = '0.0.1'
 
     def __init__(self, tree, filename: str):
         """Init plugin.
@@ -34,8 +33,8 @@ class DjangoModelDocString:
             filename (str): Location of file, that will be checked
 
         """
-        self.tree: Module = tree
-        self.filename: str = filename
+        self.tree = tree
+        self.filename = filename
 
     def run(self):
         """Run plugin against file.

@@ -11,11 +11,11 @@ IssueResults = namedtuple(
     'IssueResults', ('col', 'lineno', 'model_name')
 )
 BASE_PATH = 'tests/fixtures/'
-CURRENT_VERSION = version.parse(
-    f'{sys.version_info.major}.'
-    f'{sys.version_info.minor}.'
-    f'{sys.version_info.micro}'
-)
+CURRENT_VERSION = version.parse('{major}.{minor}.{micro}'.format(
+    major=sys.version_info.major,
+    minor=sys.version_info.minor,
+    micro=sys.version_info.micro
+))
 
 
 def create_file_tree(filename: str):
@@ -27,7 +27,9 @@ def create_file_tree(filename: str):
 
 def test_issue_discovery():
     """Check that analyzer finds issues in correct spots."""
-    filename = f'{BASE_PATH}app_with_models_module/models.py'
+    filename = '{BASE_PATH}app_with_models_module/models.py'.format(
+        BASE_PATH=BASE_PATH
+    )
     analyzer = DjangoModelAnalyzer()
     analyzer.visit(create_file_tree(filename))
     issues_types = (
@@ -66,22 +68,34 @@ def test_issue_discovery():
 
 test_files_paths = (
     (
-        f'{BASE_PATH}app_with_models_module/models.py', 3
+        '{path}app_with_models_module/models.py'.format(
+            path=BASE_PATH
+        ), 3
     ),
     (
-        f'{BASE_PATH}app_with_models_package/models/foo.py', 3
+        '{path}app_with_models_package/models/foo.py'.format(
+            path=BASE_PATH
+        ), 3
     ),
     (
-        f'{BASE_PATH}apps/app_with_models_module/models.py', 3
+        '{path}apps/app_with_models_module/models.py'.format(
+            path=BASE_PATH
+        ), 3
     ),
     (
-        f'{BASE_PATH}apps/app_with_models_package/models/correct_file.py', 0
+        '{path}apps/app_with_models_package/models/correct_file.py'.format(
+            path=BASE_PATH
+        ), 0
     ),
     (
-        f'{BASE_PATH}app_with_models_package/models/correct_file.py', 0
+        '{path}app_with_models_package/models/correct_file.py'.format(
+            path=BASE_PATH
+        ), 0
     ),
     (
-        f'{BASE_PATH}app_with_models_module/forms.py', 0
+        '{path}app_with_models_module/forms.py'.format(
+            path=BASE_PATH
+        ), 0
     ),
 )
 
