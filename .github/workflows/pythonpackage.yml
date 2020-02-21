@@ -25,7 +25,6 @@ jobs:
       env:
         CC_TEST_REPORTER_ID: bf7f76b34904ad5c33d3b2b28c0678789318c617ffd99ed7f094cf2eec9006b7
       with:
-        coverageCommand: |
-          coverage run --source=flake8_plugin -m pytest --flake8 --isort
-          coverage xml
-       
+        coverageCommand: coverage run --source=flake8_plugin -m pytest --flake8 --isort && coverage xml
+        coverageLocations: coverage.xml
+        debug: true
