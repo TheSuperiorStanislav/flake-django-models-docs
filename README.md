@@ -1,4 +1,4 @@
-https://img.shields.io/github/workflow/status/TheSuperiorStanislav/flake-django-models-docs/Build/feature/github-action?style=for-the-badge
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/TheSuperiorStanislav/flake-django-models-docs/Build/feature/github-action?style=for-the-badge)
 # Flake 8 plugin that checks docstrings for Django models
 
 It will show code style errors in this cases:
