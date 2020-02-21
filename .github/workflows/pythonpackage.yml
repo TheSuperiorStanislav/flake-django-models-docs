@@ -19,7 +19,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r development.txt
+        pip install pytest-cov
     - name: Test with pytest
-      run: |
-       pip install pytest-cov
-       pytest --cov=flake8_plugin --flake8 --isort -n auto
+      uses: paambaati/codeclimate-action@v2.4.0
+      env:
+        CC_TEST_REPORTER_ID: bf7f76b34904ad5c33d3b2b28c0678789318c617ffd99ed7f094cf2eec9006b7
+      with:
+        coverageCommand: pytest --cov=flake8_plugin --flake8 --isort -n auto
+       
