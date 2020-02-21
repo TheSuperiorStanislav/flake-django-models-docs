@@ -1,3 +1,4 @@
+![Build](https://github.com/TheSuperiorStanislav/flake-django-models-docs/workflows/Build/badge.svg?branch=feature%2Fgithub-action)
 # Flake 8 plugin that checks docstrings for Django models
 
 It will show code style errors in this cases:
